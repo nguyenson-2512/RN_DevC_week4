@@ -1,41 +1,50 @@
-import React, {useEffect} from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage'
+import React from "react";
+import { Text, View } from "react-native";
 
-const STORAGE_KEY = '@save_active'
-export default function ActiveScreen(props) {
-	// const { id, status, body } = props.route.params.doneTask;
-  // console.log(body)
-  // console.log('active---',AsyncStorage.getItem(STORAGE_KEY))
-  // const a = AsyncStorage.getItem(STORAGE_KEY)
-  // console.log('--a',a)
-  // const u = AsyncStorage.getItem(STORAGE_KEY).then((value) => JSON.stringify(value))
-  // console.log(u)
-  // const { x } = props.route.params.activeList;
-  // console.log('active-side---',x)
+import styles from "../styles";
 
-  // if(props.route.params.hasOwnProperty('activeList')){
-  //   console.log(props.route.params.activeList)}
-  // else return null;
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { activeList } from "../TodoActions";
 
-
-  return (
-    <View style={styles.container}>
-      <Text>Active Screen</Text>
-      <Text></Text>
-    </View>
-  );
+function ActiveScreen(props) {
+  try {
+    const activeList = props.route.params.activeList;
+    let list = [];
+    activeList.map((td) => {
+      list.push(td.body);
+    });
+    return list.map((item, index) => {
+      return (
+        <View key={index} style={styles.todoItem}>
+          <Text style={styles.todoText}>{item}</Text>
+        </View>
+      );
+    });
+  } catch (e) {
+    return (
+      <View style={styles.container}>
+        <Text>Active Screen</Text>
+      </View>
+    );
+  }
 }
 
 ActiveScreen.navigationOptions = {
-  header: ''
+  header: "",
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    justifyContent: 'center'
-  }
-});
+const mapStateToProps = (state) => {
+  const { todo } = state;
+  return { todo };
+};
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      activeList,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveScreen);

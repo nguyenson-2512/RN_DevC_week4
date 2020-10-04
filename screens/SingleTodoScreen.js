@@ -5,9 +5,7 @@ import { Table, Row } from "react-native-table-component";
 import styles from "../styles"
 
 const SingleTodoScreen = (props) => {
-  //   const { id, status, body } = props.navigation.state.params.updatedTodo;
-  const { id, status, body } = props.route.params.updatedTodo;
-  console.log(id);
+  const { status, body } = props.route.params.updatedTodo;
   const tableHead = ["Task", "Status"];
   const tableData = [body, status];
   return (

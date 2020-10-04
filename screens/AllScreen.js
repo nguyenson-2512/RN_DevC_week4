@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,77 +9,17 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 
-import AsyncStorage from '@react-native-community/async-storage'
-const STORAGE_KEY = '@save_active'
-
-import TodoItem from '../components/TodoItem'
-import { TODOS } from "../constants";
+import TodoItem from "../components/TodoItem";
 import styles from "../styles";
+import { connect } from "react-redux";
 
-import AllContext from "../AllContext";
-
-export default function AllScreen(props) {
-  const [todoList, setTodoList] = useState(TODOS);
+function AllScreen(props) {
+  const [todoList, setTodoList] = useState(props.todo.todoList);
   const [todoBody, setTodoBody] = useState("");
-
-  // useEffect(() => {
-    // props.navigation.navigate('Active', {
-    //   activeTodo: todoList[2]
-    // })
-
-  // }, [todoList])
-  // props.navigation.navigate('Active', {
-  //   todoList
-  // })
-  // const sendActive = () => {
-  //   props.navigation.navigate('Active', {
-  //     todoList
-  //   })
-  // }
-
-  // const saveData = async (item) => {
-  //   try {
-  //     await AsyncStorage.setItem(STORAGE_KEY, item)
-  //     console.log('--all---',item)
-  //     alert('Data saved')
-  //   } catch (e) {
-  //     alert('Fail to save')
-  //   }
-  // }
-
-
-
-  // const readData = async () => {
-  //   try {
-  //     const list = await AsyncStorage.getItem(STORAGE_KEY)
-  //     if(list !== null) console.log('---readData()---',list)
-  //     //else console.log('null roi, k log dc')
-  //   } catch (e) {
-  //     alert('Fail to fetch data')
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   readData()
-
-
-  // }, [todoList])
-  useEffect(() => {
-    props.navigation.setParams({ todoList})
-  }, [todoList])
-
 
   const onToggleTodo = (id) => {
     const todo = todoList.find((todo) => todo.id === id);
     todo.status = todo.status === "Done" ? "Active" : "Done";
-    // saveData(todo)
-    // if(todo.status === "Done"){
-    //   props.navigation.navigate("Complete", {
-    //     doneTask: todo
-    //   })
-    // } else props.navigation.navigate("Active", {
-    //   activeTask: todo
-    // })
 
     const foundIndex = todoList.findIndex((todo) => todo.id === id);
     todoList[foundIndex] = todo;
@@ -90,19 +30,25 @@ export default function AllScreen(props) {
         updatedTodo: todo,
       });
     }, 500);
-
   };
 
-  const onActive = () => {
-    const todo_active = todoList.filter(item => item.status === "Active");
+  const getActiveList = () => {
+    const todo_active = todoList.filter((item) => item.status === "Active");
     setTimeout(() => {
       props.navigation.navigate("Active", {
-        activeList: todo_active
-      })
-    },1000)
-  }
+        activeList: todo_active,
+      });
+    }, 1000);
+  };
 
-
+  const getDoneList = () => {
+    const todo_done = todoList.filter((item) => item.status === "Done");
+    setTimeout(() => {
+      props.navigation.navigate("Complete", {
+        doneList: todo_done,
+      });
+    }, 1000);
+  };
 
   const onDeleteTodo = (id) => {
     const newTodoList = todoList.filter((todo) => todo.id !== id);
@@ -121,10 +67,7 @@ export default function AllScreen(props) {
   };
 
   return (
-    <ImageBackground
-      style={styles.imgBg}
-      source={require("../assets/bg.jpg")}
-    >
+    <ImageBackground style={styles.imgBg} source={require("../assets/bg.jpg")}>
       <KeyboardAvoidingView enabled behavior="padding">
         <ScrollView style={{ flex: 1 }}>
           <View style={{ marginTop: "200%" }}>
@@ -150,12 +93,20 @@ export default function AllScreen(props) {
                 <TouchableOpacity style={styles.button} onPress={onSubmitTodo}>
                   <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
-
-
-                <TouchableOpacity style={styles.button} onPress={onActive}>
-                <Text style={styles.buttonText}>Active</Text>
-              </TouchableOpacity>
-
+                <View style={styles.buttonsWrapper}>
+                  <TouchableOpacity
+                    style={styles.button1}
+                    onPress={getActiveList}
+                  >
+                    <Text style={styles.buttonText}>Active</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.button1}
+                    onPress={getDoneList}
+                  >
+                    <Text style={styles.buttonText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
@@ -168,3 +119,10 @@ export default function AllScreen(props) {
 AllScreen.navigationOptions = {
   title: "All Todos",
 };
+
+const mapStateToProps = (state) => {
+  const { todo } = state;
+  return { todo };
+};
+
+export default connect(mapStateToProps)(AllScreen);
